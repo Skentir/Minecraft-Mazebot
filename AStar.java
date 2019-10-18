@@ -1,214 +1,336 @@
-import java.util.*;
+public class Maze implements Cloneable{
+    private Space[][] grid;
+    private Space start;
+    private Space end;
+    private Space currentSpace;
+    public int dimension;
+    public char[] priority = {'S', 'E', 'W', 'N'}; // These can be further specified using setPriority
 
-public class AStar extends Solver{
-    public AStar(Maze maze, Boolean manhattan) {
-        this.maze = maze;
-        this.result = "";
-        this.manhattan = manhattan;
-        this.maze.getStart().assignMaze(this.maze);
-        this.frontier = new PriorityQueue<Node<Maze>>(new Comparator<Node<Maze>>() {
-            @Override
-            public int compare(Node<Maze> s1, Node<Maze> s2) {
-                Double sf1 = s1.getContent().getCurrentSpace().getF();
-                Double sf2 = s2.getContent().getCurrentSpace().getF();
-                Double sh1 = s1.getContent().getCurrentSpace().getH();
-                Double sh2 = s2.getContent().getCurrentSpace().getH();
+    // Constructor 1 : Used for a clean run in the game
+    public Maze(int dimension, Space start, Space end) {
+        this.grid = new Space[dimension][dimension];
+        this.dimension = dimension;
 
-                if(sf1 > sf2)
-                    return 1;
-                else if(sf1 == sf2) {
-                    if(sh1 > sh2)
-                        return 1;
-                    else if(sh1 == sh2)
-                        return 0;
-                    else
-                        return -1;
-                }
-                else
-                    return -1;
+        for(int i = 0; i < dimension; i++) {
+            for(int j = 0; j < dimension; j++) {
+                this.grid[i][j] = new Space(i, j, " ");
             }
-        });
-        this.closedSpaces = new PriorityQueue<Space>(new Comparator<Space>() {
-            @Override
-            public int compare(Space s1, Space s2) {
-                double sf1 = s1.getF();
-                double sf2 = s2.getF();
-                double sh1 = s1.getH();
-                double sh2 = s2.getH();
+        }
 
-                if(sf1 > sf2)
-                    return 1;
-                else if(sf1 == sf2) {
-                    if(sh1 > sh2 )
-                        return 1;
-                    else if(sh1 == sh2)
-                        return 0;
-                    else
-                        return -1;
-                }
-                else
-                    return -1;
-            }
-        });
-
+        this.assignMazeToGridSquares();
+        this.end = end;
+        this.start = start;
+        this.currentSpace = this.getStart();
     }
 
-    public String solve() {
-        this.maze.initMaze(); //Re-init maze
+    // Constructor 2 : Used for a specific game state
+    public Maze(Space[][] grid, Space start, Space end, Space currentSpace, int dimension) {
+        this.grid = grid;
+        this.start = start;
+        this.end = end;
+        this.currentSpace = currentSpace;
+        this.dimension = dimension;
+    }
 
-        Boolean endfound = false;
-        this.nodesCounter = 0;
-        this.pathLength = 0;
 
-        //Compute F value of Starting square
-        if(manhattan) {
-            this.maze.getStart().calcManhattanH();
+    // Getters and Setters
+    public Space getStart() {
+        return start;
+    }
+
+    public Space getEnd() {
+        return end;
+    }
+
+    public Space getCurrentSpace() {
+        return this.currentSpace;
+    }
+
+    public void setStart(Space start) {
+        this.start = start;
+        this.grid[start.getX()][start.getY()] = start;
+    }
+
+
+    public void setEnd(Space end) {
+        this.end = end;
+        this.grid[end.getX()][end.getY()] = end;
+    }
+
+    public void setMazeWall(int y, int x) {
+        this.grid[y][x].setWall();
+    }
+
+
+    public void setCurrentSquare(Space space) {
+        this.currentSpace = space;
+    }
+
+    public void setNextSpace(Space space) { // The function is used to move the character along the maze
+        this.grid[this.currentSpace.getY()][this.currentSpace.getX()].setAttribute("*");
+        this.currentSpace = space;
+    }
+
+
+
+    public void assignMazeToGridSquares() { // The function assigns the current maze object to each square in the grid
+        for(int i = 0; i < dimension; i++){
+            for(int j = 0; j < dimension; j++) {
+                this.grid[i][j].assignMaze(this);
+            }
         }
-        else {
-            this.maze.getStart().calcEuclidH();
+    }
+
+    public void initMaze() { // Initializes the map/maze for a new path/run
+        this.resetGrid();
+
+        this.currentSpace = this.getStart();
+    }
+
+    public void resetGrid() { // Each square has its attribute change to the original state
+        for(int i = 0; i < dimension; i++) {
+            for(int j = 0; j < dimension; j++) {
+                if(this.grid[i][j].getAttribute() == "*") // * represents closed
+                    this.grid[i][j].setAttribute(" "); // a space represents open space or traversable node
+            }
         }
+    }
 
-        this.maze.getStart().calcF();
+    public void setPriority(char[] newPriority){ // Used to implement a different move priority
+        if(newPriority.length == 4) {
+            this.priority = newPriority;
+        }
+    }
 
-        //Init data structures
-        this.frontier.clear(); //Clear frontier Queue
-        ((PriorityQueue<Node<Maze>>) this.frontier).offer(new Node<Maze>(this.maze)); //Adding the first node (Start node) (G is at 0, Start to Start = 0)
-        this.closedSpaces.clear(); //Clear closedSquares
+    public Space[][] getGrid() {
+        return grid;
+    }
 
-        //Measure run time
-        long startTime = System.currentTimeMillis();
+    public String printMaze() // For testing
+    {
+        String res = "   ";
+        String res_under = "";
+        Space temp = null;
+        Space templineunder = null;
+        Space tempnextcol = null;
+        Space tempdiag = null;
 
-        while(!endfound)
+        //Columns numbers
+        for(int i = 0; i < dimension; i++)
         {
-            if(this.frontier.isEmpty())
-                break;
+            if(i < 10)
+                res += "  " + i + " ";
             else
-            {
-                Node<Maze> current = ((PriorityQueue<Node<Maze>>) this.frontier).remove();
-                this.maze = (Maze) current.getContent();
-                Space currState = this.maze.getCurrentSpace();
+                res += "  " + i;
+        }
+        res += "\n   ╔";
 
-                if(currState.getX() == this.maze.getEnd().getX() && currState.getY() == this.maze.getEnd().getY())
+        //First row : Maze top edge
+        for(int i = 1; i < this.dimension; i++)
+        {
+            temp = this.grid[0][i - 1];
+            tempnextcol = this.grid[0][i];
+            if(temp.isWall())
+                res += "═══╤";
+            else
+            if(tempnextcol.isWall())
+                res += "═══╤";
+            else
+                res += "════";
+        }
+        res += "═══╗\n";
+
+        //Browse all squares
+        // res = the line containing the square states
+        // res_under = the graphics under the squares line with the corner unicode characters
+        // contatenation of res + res_under at each line
+        //Example :
+        //		│   │   │   │ <- res
+        //		└───┼───┼───┘ <- res_under
+        //		    │   │     <- res
+        //		    └───┘     <- res_under
+        //		etc...
+        for(int l = 0; l < this.dimension; l++)
+        {
+            res_under = "";
+            for(int c = 0; c < this.dimension; c++)
+            {
+                //Get Squares
+                temp = this.grid[l][c]; // = A -> Current square
+                tempnextcol = temp.getE(); // = B -> Square at the right of temp
+                templineunder = temp.getS(); // = C -> Square below temp
+                if(l < this.dimension - 1 && c < this.dimension - 1)
+                    tempdiag = templineunder.getE(); // = D -> Square in the temp lower right-hand diagonal
+
+                if(c == 0) //First colomn of current line l
                 {
-                    Node<Maze> temp = new Node<Maze>(this.maze);
-                    temp.setParent(current);
-                    ((PriorityQueue<Node<Maze>>) this.frontier).offer(temp);
-                    endfound = true;
+                    if(l < 10)
+                        res += l + "  ║";
+                    else
+                        res += l + " ║";
+
+                    if(templineunder != null)
+                    {
+                        if(temp.isWall() || templineunder.isWall())
+                            res_under += "   ╟";
+                        else
+                            res_under += "   ║";
+                    }
                 }
 
+                if(temp.isWall())
+                {
+                    res += "   ";
+                    res_under += "───";
+                }
                 else
                 {
-                    LinkedList<Node<Maze>> nexts = this.getNextSpaces();
-                    if(!this.closedSpaces.contains(currState))
+                    if(temp.getY() == this.currentSpace.getY() && temp.getX() == this.currentSpace.getX())
+                        res += " o ";
+                    else if (temp.getY() == this.start.getY() && temp.getX() == this.start.getX())
+                        res += " S ";
+                    else if (temp.getY() == this.end.getY() && temp.getX() == this.end.getX())
+                        res += " E ";
+                    else
+                        res += " " + temp.getAttribute() + " ";
+
+
+                    if(l < this.dimension - 1)
                     {
-                        this.closedSpaces.add(currState);
-                        currState.setAttribute("*");
-                    }
-
-                    Iterator<Node<Maze>> x = nexts.iterator();
-
-                    while(x.hasNext())
-                    {
-                        Node<Maze> neighbor = x.next();
-
-                        if(this.closedSpaces.contains(neighbor.getContent().getCurrentSpace()))
-                            continue;
+                        if(templineunder.isWall())
+                            res_under += "───";
                         else
+                            res_under += "   ";
+                    }
+                }
+
+                //Maze right edge
+                if(c == this.dimension - 1)
+                {
+                    res += "║";
+                    if(temp != null && templineunder != null)
+                    {
+                        if(temp.isWall() || templineunder.isWall())
+                            res_under += "╢";
+                        else
+                            res_under += "║";
+                    }
+                }
+                else
+                {
+                    //Squares corners.
+                    // two cases : wall square or not
+                    if(temp.isWall())
+                    {
+                        res += "│";
+                        if(templineunder != null && tempdiag != null && tempnextcol != null)
                         {
-                            if(!this.frontier.contains(neighbor))
+                            //"┼" = (B + D).(C + D) -> The most reccurent corner to write
+                            if((tempnextcol.isWall() || tempdiag.isWall()) && (templineunder.isWall() || tempdiag.isWall()))
+                                res_under += "┼";
+                            else
                             {
-                                neighbor.setParent(current);
-                                ((PriorityQueue<Node<Maze>>) this.frontier).offer(neighbor);
-                                this.nodesCounter++;
+                                if(!templineunder.isWall() && !tempdiag.isWall() && !tempnextcol.isWall()) //Wall on top left only
+                                    res_under += "┘";
+                                else if(!templineunder.isWall() && !tempdiag.isWall() && tempnextcol.isWall()) // Walls on top
+                                    res_under += "┴";
+                                else if(templineunder.isWall() && !tempdiag.isWall() && !tempnextcol.isWall()) // Walls on left
+                                    res_under += "┤";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(tempnextcol != null)
+                        {
+                            if(tempnextcol.isWall())
+                                res += "│";
+                            else
+                                res += " ";
+
+                            if(templineunder != null && tempdiag != null)
+                            {
+                                //"┼" = (C).(D) -> The most reccurent corner to write
+                                if(templineunder.isWall() && tempnextcol.isWall())
+                                    res_under += "┼";
+                                else
+                                {
+                                    if(!templineunder.isWall() && !tempdiag.isWall() && !tempnextcol.isWall()) //No wall
+                                        res_under += " ";
+                                    else if(!templineunder.isWall() && tempdiag.isWall() && !tempnextcol.isWall()) //Wall on right below
+                                        res_under += "┌";
+                                    else if(templineunder.isWall() && !tempdiag.isWall() && !tempnextcol.isWall()) //Wall on left below
+                                        res_under += "┐";
+                                    else if(!templineunder.isWall() && !tempdiag.isWall() && tempnextcol.isWall()) //Wall on top right
+                                        res_under += "└";
+                                    else if(!templineunder.isWall() && tempdiag.isWall() && tempnextcol.isWall()) //Walls on right
+                                        res_under += "├";
+                                    else if(templineunder.isWall() && tempdiag.isWall() && !tempnextcol.isWall()) //Walls below
+                                        res_under += "┬";
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
-        long endTime = System.currentTimeMillis();
-
-        long time = endTime - startTime;
-
-        if(this.manhattan)
-            this.result = "    ___                    __  ___            __          __  __            \r\n" +
-                    "   /   | __/|_            /  |/  /___ _____  / /_  ____ _/ /_/ /_____ _____ \r\n" +
-                    "  / /| ||    /  ______   / /|_/ / __ `/ __ \\/ __ \\/ __ `/ __/ __/ __ `/ __ \\\r\n" +
-                    " / ___ /_ __|  /_____/  / /  / / /_/ / / / / / / / /_/ / /_/ /_/ /_/ / / / /\r\n" +
-                    "/_/  |_||/             /_/  /_/\\__,_/_/ /_/_/ /_/\\__,_/\\__/\\__/\\__,_/_/ /_/ \n";
-        else
-            this.result = "    ___                    ______           ___     __\r\n" +
-                    "   /   | __/|_            / ____/_  _______/ (_)___/ /\r\n" +
-                    "  / /| ||    /  ______   / __/ / / / / ___/ / / __  / \r\n" +
-                    " / ___ /_ __|  /_____/  / /___/ /_/ / /__/ / / /_/ /  \r\n" +
-                    "/_/  |_||/             /_____/\\__,_/\\___/_/_/\\__,_/   \n";
-
-        if(endfound)
-        {
-            this.maze.resetGrid();
-            Node<Maze> revertedTree = ((PriorityQueue<Node<Maze>>) this.frontier).remove();
-
-            revertedTree = revertedTree.getParent();
-            this.result += "Path: " + this.maze.getEnd().toString() + "(End) <- ";
-            this.pathLength++;
-
-            while(revertedTree.hasParent())
-            {
-                Maze temp = revertedTree.getContent();
-                Space state = temp.getCurrentSpace();
-
-                if(!state.equals(this.maze.getEnd()))
-                {
-                    this.result += state.toString() + " <- ";
-                    this.maze.getGrid()[state.getY()][state.getX()].setAttribute("*");
-                    this.pathLength++;
-                }
-                revertedTree = revertedTree.getParent();
-            }
-
-            this.result += this.maze.getStart().toString() + "(Start) \n" + "Path length: " + this.pathLength + "\nNumber of nodes created: " + this.nodesCounter + "\nExecution time: " + time/1000d + " seconds\n";
-            this.result += this.maze.printMaze();
-        }
-        else
-        {
-            this.result += "Failed : Unable to go further and/or end is unreachable.";
-        }
-
-        return this.result;
-    }
-
-    public LinkedList<Node<Maze>> getNextSpaces() {
-        LinkedList<Node<Maze>> res = new LinkedList<Node<Maze>>();
-
-        LinkedList<Maze> nexts = this.maze.getCurrentSpace().getNexts();
-
-        int gCurrent = this.maze.getCurrentSpace().getG();
-
-        for(int i = 0; i < nexts.size(); i++) {
-            Space temp = nexts.get(i).getCurrentSpace();
-            if(!this.closedSpaces.contains(temp))
-                nexts.get(i).getCurrentSpace().calcManhattanH();
+            }//<- for each column
+            if(l < this.dimension - 1)
+                res += "\n" + res_under + "\n"; //Concatenate res + res_under
             else
-                nexts.get(i).getCurrentSpace().calcEuclidH();
-
-            nexts.get(i).getCurrentSpace().incG(gCurrent);
-            nexts.get(i).getCurrentSpace().calcF();
-
-            Node<Maze> tempNode = new Node<Maze>(nexts.get(i));
-            res.add(tempNode);
-
+            {
+                //Maze bottom edge
+                res += "\n   ╚";
+                for(int i = 1; i < this.dimension; i++)
+                {
+                    temp = this.getGrid()[l][i - 1];
+                    if(temp.getE().isWall() || temp.isWall())
+                        res += "═══╧";
+                    else
+                        res += "════";
+                }
+                res += "═══╝\n";
+            }
         }
+
+		/*//Affichage simple
+		String res = "   ";
+		for(int i = 0; i < cMax; i++)
+		{
+			if(i >= 9)
+				res += " " + i;
+			else
+				res += " " + i + " ";
+		}
+		res += "\n";
+		for(int i = 0; i < this.lMax; i++)
+		{
+			if(i > 9)
+				res += i + " ";
+			else
+				res += i + "  ";
+
+			for(int j = 0; j < this.cMax; j++)
+			{
+				if(this.getGrid()[i][j].getAttribute() != "" && !this.getGrid()[i][j].isWall())
+					res += "[" + this.getGrid()[i][j].getAttribute() + "]";
+				else
+					res += "[■]";
+			}
+			res += "\n";
+		}*/
         return res;
     }
 
-    public String getResult() {
-        if(this.result == "")
-            return "No resolution computed, use the solve method first";
-        else
-            return this.result;
+    @Override
+    public Maze clone() {
+        Maze foo;
+        try {
+            foo = (Maze)super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new Error();
+        }
+        return foo;
     }
 
-    public AbstractCollection<Node<Maze>> getFrontier() {
-        return this.frontier;
-    }
 }
