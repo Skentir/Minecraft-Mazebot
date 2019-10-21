@@ -5,8 +5,10 @@ import javafx.stage.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
@@ -29,12 +31,12 @@ public class MazeGui extends Application
   * x_tiles = 600/40 = 15
   * y_tiles = 600/40 = 15
   */
-  private static final int TILE_SIZE = 40;
-  private int MAP_WIDTH = 600;
-  private int MAP_HEIGHT = 600;
+  private static final int TILE_SIZE = 30;
+  private int MAP_WIDTH = 630;
+  private int MAP_HEIGHT = 630;
   private int X_TILES = MAP_WIDTH/TILE_SIZE;
   private int Y_TILES = MAP_HEIGHT/TILE_SIZE;
-  private char[][] map;
+  private Tile[][] grid = new Tile[X_TILES][Y_TILES];
 
   private ImageView botView;    /* AI bot that will traverse */
   private ImageView wallView;   /* wall nodes */
@@ -59,16 +61,10 @@ public class MazeGui extends Application
   }
   private void createScenes()
   {
+      /*  Start Screen */
       Label welcomeLabel = new Label();
-      /*Insert path to title screen logo*/
       ImageView title = new ImageView(new Image("assets/titlescreen.png"));
-  //    Button getStartedButton = new Button();
-      /* Assign CSS script to make button pretty */
-  //    getStartedButton.setStyle("-fx-font-weight: bold; -fx-background-color: #8fe1a2; -fx-text-fill: black;");
-  //    getStartedButton.setText("Get Started");
-      /* Assign id to connect to the controller */
-  //    getStartedButton.setId("get-started"); *
-      ImageView getStartedButton = new ImageView(new Image("assets/mcbutton.png",150,40, false, false));
+      ImageView getStartedButton = new ImageView(new Image("assets/mcbutton.png",150,80, true, false));
       getStartedButton.setId("get-started");
       getStartedButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
         this.setScene(MAZE);
@@ -77,22 +73,48 @@ public class MazeGui extends Application
       VBox mainBox = new VBox();
       mainBox.setAlignment(Pos.CENTER);
       mainBox.getChildren().addAll(title, getStartedButton);
-      BackgroundImage titlebg = new BackgroundImage(new Image("assets/titlebg.jpg"),
+      BackgroundImage titlebg = new BackgroundImage(new Image("assets/titlebg.jpg", true),
         BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
-          BackgroundSize.DEFAULT);
+          new BackgroundSize(1.0, 1.0, true, true, false, false));
+
       mainPane.setBackground(new Background(titlebg));
       mainPane.setStyle("-fx-font-size: 2em;");
       mainBox.setMargin(getStartedButton, new Insets(15, 0, 0, 0));
       mainPane.setCenter(mainBox);
-      startScene = new Scene(mainPane, 700, 500);
+      startScene = new Scene(mainPane, 1000, 700);
 
-
+      /* Maze Grid */
       GridPane mazePane = new GridPane();
+      Pane map = new Pane();
+      map.setPrefSize(MAP_WIDTH, MAP_HEIGHT);
+      for (int y = 0; y < Y_TILES; y++) {
+            for (int x = 0; x < X_TILES; x++) {
+                Tile tile = new Tile(x, y, Math.random() < 0.2);
+                grid[x][y] = tile;
+                map.getChildren().add(tile);
+            }
+      }
+      VBox mapInfo = new VBox(10);
+      ImageView stepsImg = new ImageView(new Image("assets/steps.png"));
+      VBox.setMargin(stepsImg, new Insets(50, 0, 0, 0));
+      ImageView timeImg  = new ImageView(new Image("assets/time.png"));
+      ImageView exploredImg = new ImageView(new Image("assets/explored.png"));
+      Label stepsLabel = new Label("Steps:");
+      VBox.setMargin(stepsLabel, new Insets(0, 0, 0, 10));
+      Label timeLabel = new Label("Time:");
+      VBox.setMargin(timeLabel, new Insets(0, 0, 0, 10));
+      Label exploredLabel = new Label("Explored Nodes:");
+      VBox.setMargin(exploredLabel, new Insets(0, 0, 0, 10));
+      mapInfo.getChildren().addAll(stepsImg, stepsLabel, timeImg, timeLabel, exploredImg, exploredLabel);
+
       BackgroundImage mazebg = new BackgroundImage(new Image("assets/dirtbg.png"),
         BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
           BackgroundSize.DEFAULT);
+      mazePane.setMargin(map, new Insets(30, 0, 0, 35));
+      mazePane.add(map, 0,0);
+      mazePane.add(mapInfo, 1,0);
       mazePane.setBackground(new Background(mazebg));
-      mazeScene = new Scene(mazePane, 700, 500);
+      mazeScene = new Scene(mazePane, 1000, 700);
   }
 
   private class Tile extends StackPane
@@ -100,14 +122,19 @@ public class MazeGui extends Application
       private int x,y;
       private boolean isWall;
       private Rectangle border = new Rectangle(TILE_SIZE-2, TILE_SIZE-2);
-      private ImageView block;
+      private ImageView block = new ImageView(new Image("assets/grass_path_top.png", TILE_SIZE, TILE_SIZE, true, true));
 
       public Tile(int x, int y, boolean isWall)
       {
         this.x = x;
         this.y = y;
         this.isWall = isWall;
-        border.setStroke(black);
+
+        border.setStroke(Color.BLACK);
+        border.setFill(Color.TRANSPARENT);
+        getChildren().addAll(block, border);
+        setTranslateX(x * TILE_SIZE);
+        setTranslateY(y * TILE_SIZE);
       }
   }
 
