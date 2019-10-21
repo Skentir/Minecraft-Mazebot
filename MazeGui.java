@@ -4,6 +4,9 @@ import javafx.scene.Scene;
 import javafx.stage.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
@@ -21,6 +24,22 @@ public class MazeGui extends Application
   private Scene startScene, mazeScene;
   public static final String MAIN_MENU = "MENU";
   public static final String MAZE = "MAZE";
+  /*
+  * To set a 15 by 15 tile map:
+  * x_tiles = 600/40 = 15
+  * y_tiles = 600/40 = 15
+  */
+  private static final int TILE_SIZE = 40;
+  private int MAP_WIDTH = 600;
+  private int MAP_HEIGHT = 600;
+  private int X_TILES = MAP_WIDTH/TILE_SIZE;
+  private int Y_TILES = MAP_HEIGHT/TILE_SIZE;
+  private char[][] map;
+
+  private ImageView botView;    /* AI bot that will traverse */
+  private ImageView wallView;   /* wall nodes */
+  private ImageView spaceView;  /* unexplored node*/
+  private ImageView pathView;   /* explored node */
 
   public MazeGui()
   {
@@ -51,7 +70,9 @@ public class MazeGui extends Application
   //    getStartedButton.setId("get-started"); *
       ImageView getStartedButton = new ImageView(new Image("assets/mcbutton.png",150,40, false, false));
       getStartedButton.setId("get-started");
-
+      getStartedButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+        this.setScene(MAZE);
+      });
       BorderPane mainPane = new BorderPane();
       VBox mainBox = new VBox();
       mainBox.setAlignment(Pos.CENTER);
@@ -67,8 +88,27 @@ public class MazeGui extends Application
 
 
       GridPane mazePane = new GridPane();
-
+      BackgroundImage mazebg = new BackgroundImage(new Image("assets/dirtbg.png"),
+        BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+          BackgroundSize.DEFAULT);
+      mazePane.setBackground(new Background(mazebg));
       mazeScene = new Scene(mazePane, 700, 500);
+  }
+
+  private class Tile extends StackPane
+  {
+      private int x,y;
+      private boolean isWall;
+      private Rectangle border = new Rectangle(TILE_SIZE-2, TILE_SIZE-2);
+      private ImageView block;
+
+      public Tile(int x, int y, boolean isWall)
+      {
+        this.x = x;
+        this.y = y;
+        this.isWall = isWall;
+        border.setStroke(black);
+      }
   }
 
   public void setScene(String scene)
@@ -80,7 +120,7 @@ public class MazeGui extends Application
   }
 
   private void attachHandlerToPane(Pane pane, EventHandler<ActionEvent> handler)
-{
+  {
     for (Node node : pane.getChildren())
     {
         if (node instanceof Button)
@@ -90,8 +130,8 @@ public class MazeGui extends Application
         }
         else if (node instanceof Pane)
             attachHandlerToPane((Pane)node, handler);
-    }
-}
+      }
+  }
 
   private void attachHandlerToScene(Scene scene, EventHandler<ActionEvent> handler)
   {

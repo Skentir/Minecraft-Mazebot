@@ -11,9 +11,9 @@ public class MazeController implements EventHandler<ActionEvent>
 {
   private MazeGui gui;
   private ArrayList<Node> path;
-  private char[][] map;
   private int dimension;
   private Maze maze;
+  private char[][] map;
 
   public MazeController(MazeGui gui)
   {
