@@ -1,4 +1,5 @@
-public class Maze implements Cloneable{
+public class Maze implements Cloneable
+{
     private Space[][] grid;
     private Space start;
     private Space end;
