@@ -1,29 +1,29 @@
-public class Node<T> {
-    private T value;
-    private Node<T> parent;
+public class Node {
+    private Maze value;
+    private Node parent;
 
     //Bind content of c to the node
-    public Node(T c) {
+    public Node(Maze c) {
         this.value = c;
     }
 
     //Returns the content bound to the node
-    public T getContent() {
+    public Maze getContent() {
         return value;
     }
 
     //Set content bound to the note
-    public void setContent(T value) {
+    public void setContent(Maze value) {
         this.value = value;
     }
 
     //Return father Node from current Node
-    public Node<T> getParent() {
+    public Node getParent() {
         return parent;
     }
 
     //Set parent of this Node
-    public void setParent(Node<T> parent) {
+    public void setParent(Node parent) {
         this.parent = parent;
     }
 

@@ -1,5 +1,4 @@
-public class Maze implements Cloneable
-{
+public class Maze implements Cloneable{
     private Space[][] grid;
     private Space start;
     private Space end;
@@ -62,7 +61,6 @@ public class Maze implements Cloneable
         this.grid[y][x].setWall();
     }
 
-
     public void setCurrentSquare(Space space) {
         this.currentSpace = space;
     }
@@ -71,8 +69,6 @@ public class Maze implements Cloneable
         this.grid[this.currentSpace.getY()][this.currentSpace.getX()].setAttribute("*");
         this.currentSpace = space;
     }
-
-
 
     public void assignMazeToGridSquares() { // The function assigns the current maze object to each square in the grid
         for(int i = 0; i < dimension; i++){

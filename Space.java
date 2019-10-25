@@ -69,8 +69,8 @@ public class Space{
         From the current Space, ge the next space to be traversed
      */
 
-    public LinkedList<Maze> getNexts() {
-        LinkedList<Maze> next = new LinkedList<Maze>();
+    public ArrayList<Maze> getNexts() {
+        ArrayList<Maze> next = new ArrayList<>();
 
         for(int i=0 ; i<4 ; i++) {
             Maze temp = this.maze.clone();
@@ -78,25 +78,25 @@ public class Space{
             if(this.maze.priority[i] == 'N') {
                 if(this.getN() != null && !this.getN().isWall()) {
                     temp.setNextSpace (this.getN());
-                    next.push(temp);
+                    next.add(temp);
                 }
             }
             else if (this.maze.priority[i] == 'E'){
                 if(this.getE() != null && !this.getE().isWall()) {
                     temp.setNextSpace (this.getE());
-                    next.push(temp);
+                    next.add(temp);
                 }
             }
             else if (this.maze.priority[i] == 'S') {
                 if(this.getS() != null && !this.getS().isWall()) {
                     temp.setNextSpace (this.getS());
-                    next.push(temp);
+                    next.add(temp);
                 }
             }
             else if (this.maze.priority[i] == 'W') {
                 if(this.getW() != null && !this.getW().isWall()) {
                     temp.setNextSpace (this.getW());
-                    next.push(temp);
+                    next.add(temp);
                 }
             }
         }
