@@ -44,6 +44,13 @@ public class MazeGui extends Application
   ImageView getStartedButton;
   ImageView beginFindingButton;
 
+  private static final Image GRASS_PATH = new Image("assets/grass_path_top.png", TILE_SIZE, TILE_SIZE, true, true);
+  private static final Image DIAMOND_ORE = new Image("assets/diamond_ore.png", TILE_SIZE, TILE_SIZE, true, true);
+  private static final Image POWDER = new Image("assets/concretepowder_black.png", TILE_SIZE, TILE_SIZE, true, true);
+  private static final Image BIRCH_PLANKS = new Image("assets/birch_planks.png", TILE_SIZE, TILE_SIZE, true, true);
+  private static final Image EXPLORED = new Image("assets/concretepowder_red.png", TILE_SIZE, TILE_SIZE, true, true);
+  private static final Image PATH = new Image("assets/concretepowder_blue.png", TILE_SIZE, TILE_SIZE, true, true);
+
   public MazeGui()
   {
   }
@@ -142,10 +149,6 @@ public class MazeGui extends Application
   }
   private static class Tile extends StackPane
   {
-      private static final Image GRASS_PATH = new Image("assets/grass_path_top.png", TILE_SIZE, TILE_SIZE, true, true);
-      private static final Image DIAMOND_ORE = new Image("assets/diamond_ore.png", TILE_SIZE, TILE_SIZE, true, true);
-      private static final Image POWDER = new Image("assets/concretepowder_black.png", TILE_SIZE, TILE_SIZE, true, true);
-      private static final Image BIRCH_PLANKS = new Image("assets/birch_planks.png", TILE_SIZE, TILE_SIZE, true, true);
 
       private int x,y;
       private boolean isWall;
@@ -173,6 +176,11 @@ public class MazeGui extends Application
         setTranslateX(x * TILE_SIZE);
         setTranslateY(y * TILE_SIZE);
         setOnMouseClicked(e -> updateTile());
+      }
+
+      public ImageView getBlock()
+      {
+          return this.block;
       }
 
       public void updateTile()
@@ -209,9 +217,27 @@ public class MazeGui extends Application
     }
   }
 
-  private void updateSteve()
+
+
+  public void updateTile(int x, int y, int index)
   {
-    Image STEVE = new Image("assets/steve.gif", TILE_SIZE, TILE_SIZE, true, true);
+      Image image = null;
+      switch (index)
+      {
+          case 0:
+              image = EXPLORED;
+              break;
+          case 1:
+              image = PATH;
+              break;
+      }
+      //TODO: find why this is x y not y x
+      grid[x][y].getBlock().setImage(image);
+  }
+
+  private void updateZombie()
+  {
+    Image ZOMBIE = new Image("assets/zombie.gif", TILE_SIZE, TILE_SIZE, true, true);
     /* TODO: Update Start Tile with Steve*/
     
   }

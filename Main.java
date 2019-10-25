@@ -15,8 +15,8 @@ public class Main {
         m1.setMazeWall(1,4);
         m1.setMazeWall(2,2);
 
-        AStar a1= new AStar(m1, true);
+        //AStar a1= new AStar(m1, true);
 
-        System.out.println(a1.solve());
+        //System.out.println(a1.solve());
     }
 }

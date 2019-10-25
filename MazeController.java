@@ -1,13 +1,11 @@
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventTarget;
-import java.util.ArrayList;
-import java.util.Optional;
-import javafx.scene.Node;
+import java.util.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ButtonType;
 
-public class MazeController implements EventHandler<ActionEvent>
+public class MazeController implements EventHandler<ActionEvent>, Explorer
 {
   private MazeGui gui;
   private ArrayList<Node> path;
@@ -27,9 +25,9 @@ public class MazeController implements EventHandler<ActionEvent>
   public void handle(ActionEvent event)
   {
     EventTarget target = event.getTarget();
-    if (target instanceof Node)
+    if (target instanceof javafx.scene.Node)
     {
-      Node node = (Node)target;
+      javafx.scene.Node node = (javafx.scene.Node)target;
     //  Alert alert;
       Optional<ButtonType> result;
       switch(node.getId())
@@ -71,9 +69,36 @@ public class MazeController implements EventHandler<ActionEvent>
     // m1.setMazeWall(1,4);
     // m1.setMazeWall(2,2);
 
-    AStar a1= new AStar(m1, true);
+    new Thread(() -> { AStar a1= new AStar(this, m1, true); a1.solve(); }).start();
 
-    System.out.println(a1.solve());
+    //System.out.println(a1.solve());
   }
 
+  // called when the A* algorithm explores a new tile
+  public void onExplore(Solver state) {
+    // this is where you update the tiles and gui
+    AbstractCollection<Space> explored = state.getExplored();
+    for (Space space : explored)
+      gui.updateTile(space.getX(), space.getY(), 0);
+  }
+
+  @Override
+  public void onPathFound(Node solution) {
+    // display the path
+    Node current = solution.getParent();
+
+    while (current.hasParent()) {
+      Maze content = current.getContent();
+      Space space = content.getCurrentSpace();
+
+      try {
+        Thread.sleep(20);
+      } catch (Exception ex) {
+
+      }
+      gui.updateTile(space.getX(), space.getY(), 1);
+
+      current = current.getParent();
+    }
+  }
 }

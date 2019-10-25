@@ -9,7 +9,8 @@ Further considerations
 
 public class AStar extends Solver {
 
-    public AStar(Maze maze, Boolean manhattan) {
+    public AStar(Explorer explorer, Maze maze, Boolean manhattan) {
+        this.explorer = explorer;
         this.maze = maze;
         this.result = "";
         this.manhattan = manhattan;
@@ -128,9 +129,16 @@ public class AStar extends Solver {
                             }
                         }
                     }
-                }
 
-                // notify the gui and show explored tiles
+                    // notify the gui and show explored tiles
+                    try {
+                        Thread.sleep(20);
+                    } catch (Exception ex) {
+
+                    }
+
+                    explorer.onExplore(this);
+                }
             }
         }
 
@@ -153,8 +161,9 @@ public class AStar extends Solver {
 
         if(endfound)
         {
-            this.maze.resetGrid();
+            // this.maze.resetGrid();
             Node revertedTree = ((PriorityQueue<Node>) this.fringe).remove();
+            explorer.onPathFound(revertedTree);
 
             revertedTree = revertedTree.getParent();
             this.result += "Path: " + this.maze.getEnd().toString() + "(End) <- ";
@@ -220,4 +229,5 @@ public class AStar extends Solver {
     public AbstractCollection<Node> getFringe() {
         return this.fringe;
     }
+    public AbstractCollection<Space> getExplored() { return this.explored; }
 }

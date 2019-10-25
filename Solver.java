@@ -1,6 +1,7 @@
 import java.util.*;
 
 public abstract class Solver { // Parent class for implementing algorithms
+    protected Explorer explorer;
     protected Maze maze;
     protected String result;
     protected AbstractCollection<Node> fringe;
@@ -16,5 +17,5 @@ public abstract class Solver { // Parent class for implementing algorithms
     public abstract String getResult(); // This returns the result of an algorithm
 
     public abstract AbstractCollection<Node> getFringe();
-
+    public abstract AbstractCollection<Space> getExplored();
 }
