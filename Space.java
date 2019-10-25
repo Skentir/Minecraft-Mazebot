@@ -155,7 +155,7 @@ public class Space{
     //Set space as wall & makes its attribute null
     public void setWall() {
         this.wall = true;
-        this.a = null;
+        this.a = "b";
     }
 
     //Return H value

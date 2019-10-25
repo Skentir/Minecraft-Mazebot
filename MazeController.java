@@ -52,22 +52,19 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
 
     Space[][] grid = gui.getGrid();
 
-    for (int i = 0; i < 21; i++)
-      for (int j = 0; j < 21; j++)
+    for (int y = 0; y < 21; y++) {
+      for (int x = 0; x < 21; x++)
       {
-        if (grid[i][j].isWall())
-          m1.setMazeWall(i,j);
-        System.out.printf ("%d %d %b\n", i, j, grid[i][j].isWall());
+        if (grid[y][x].isWall()) {
+          m1.setMazeWall(y, x);
+          //System.out.printf ("%d %d %b\n", y, x, grid[y][x].isWall());}
+          System.out.print("#");
+        } else {
+          System.out.print(".");
+        }
       }
-    // m1.setMazeWall(2,0);
-    // m1.setMazeWall(3,0);
-    // m1.setMazeWall(1,2);
-    // m1.setMazeWall(2,2);
-    // m1.setMazeWall(3,2);
-    // m1.setMazeWall(4,2);
-    // m1.setMazeWall(4,3);
-    // m1.setMazeWall(1,4);
-    // m1.setMazeWall(2,2);
+      System.out.println();
+    }
 
     new Thread(() -> { AStar a1= new AStar(this, m1, true); a1.solve(); }).start();
 
@@ -79,7 +76,7 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
     // this is where you update the tiles and gui
     AbstractCollection<Space> explored = state.getExplored();
     for (Space space : explored)
-      gui.updateTile(space.getX(), space.getY(), 0);
+      gui.updateTile(space.getY(), space.getX(), 0);
   }
 
   @Override
@@ -96,7 +93,7 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
       } catch (Exception ex) {
 
       }
-      gui.updateTile(space.getX(), space.getY(), 1);
+      gui.updateTile(space.getY(), space.getX(), 1);
 
       current = current.getParent();
     }

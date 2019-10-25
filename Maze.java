@@ -48,13 +48,13 @@ public class Maze implements Cloneable {
 
     public void setStart(Space start) {
         this.start = start;
-        this.grid[start.getX()][start.getY()] = start;
+        this.grid[start.getY()][start.getX()] = start;
     }
 
 
     public void setEnd(Space end) {
         this.end = end;
-        this.grid[end.getX()][end.getY()] = end;
+        this.grid[end.getY()][end.getX()] = end;
     }
 
     public void setMazeWall(int y, int x) {

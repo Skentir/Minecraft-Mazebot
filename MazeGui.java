@@ -101,16 +101,16 @@ public class MazeGui extends Application
                 Tile tile; Space space;
                   if (x == 0 || (y == 0 || y == Y_TILES-1) || x == X_TILES-1)
                   {
-                    tile = new Tile(x, y, true);
-                    space = new Space(x,y,true);
+                    tile = new Tile(y,x, true);
+                    space = new Space(y,x,true);
                   }
                   else
                   {
-                    tile = new Tile(x, y, false);
-                    space = new Space(x,y, false);
+                    tile = new Tile(y,x, false);
+                    space = new Space(y,x, false);
                   }
-                grid[x][y] = tile;
-                new MazeGui().spaceGrid[x][y] = space;
+                grid[y][x] = tile;
+                spaceGrid[y][x] = space;
                 map.getChildren().add(tile);
             }
       }
@@ -147,7 +147,7 @@ public class MazeGui extends Application
       mazePane.setBackground(new Background(mazebg));
       mazeScene = new Scene(mazePane, 1000, 700);
   }
-  private static class Tile extends StackPane
+  private class Tile extends StackPane
   {
 
       private int x,y;
@@ -161,7 +161,7 @@ public class MazeGui extends Application
         2 - start
         3 - goal
       */
-      public Tile(int x, int y, boolean isWall)
+      public Tile(int y, int x, boolean isWall)
       {
         this.x = x;
         this.y = y;
@@ -185,7 +185,7 @@ public class MazeGui extends Application
 
       public void updateTile()
       {
-        System.out.println("Changing tile image....");
+        System.out.println("Changing tile image of (" + x + ", " + y + ")....");
         this.type++;
         this.type %= 4;
         switch(this.type)
@@ -193,23 +193,24 @@ public class MazeGui extends Application
           case 0:
             block.setImage(GRASS_PATH);
             this.isWall = false;
-            spaceGrid[x][y].setAttribute(" ");
+            spaceGrid[y][x].setAttribute(" ");
             break;
           case 1:
             block.setImage(BIRCH_PLANKS);
             this.isWall = true;
-            spaceGrid[x][y].setAttribute("*");
+            spaceGrid[y][x].setWall();
+            spaceGrid[y][x].setAttribute("B");
             break;
           case 2:
             block.setImage(POWDER);
-            start = new MazeGui().spaceGrid[y][x];
-            spaceGrid[x][y].setAttribute("s");
+            start = MazeGui.spaceGrid[y][x];
+            spaceGrid[y][x].setAttribute("S");
             this.isWall = false;
             break;
           case 3:
             block.setImage(DIAMOND_ORE);
-            end = new MazeGui().spaceGrid[y][x];
-            spaceGrid[x][y].setAttribute("o");
+            end = MazeGui.spaceGrid[y][x];
+            spaceGrid[y][x].setAttribute("E");
             this.isWall = false;
             /* TODO: Create function to save the coordinate of the goal */
             break;
@@ -217,9 +218,7 @@ public class MazeGui extends Application
     }
   }
 
-
-
-  public void updateTile(int x, int y, int index)
+  public void updateTile(int y, int x, int index)
   {
       Image image = null;
       switch (index)
@@ -232,14 +231,14 @@ public class MazeGui extends Application
               break;
       }
       //TODO: find why this is x y not y x
-      grid[x][y].getBlock().setImage(image);
+      grid[y][x].getBlock().setImage(image);
   }
 
   private void updateZombie()
   {
     Image ZOMBIE = new Image("assets/zombie.gif", TILE_SIZE, TILE_SIZE, true, true);
     /* TODO: Update Start Tile with Steve*/
-    
+
   }
 
   public Space getStartSpace()
