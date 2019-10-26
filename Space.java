@@ -158,6 +158,10 @@ public class Space{
         this.a = "b";
     }
 
+    public void unsetWall() {
+        this.wall = false;
+        this.a = " ";
+    }
     //Return H value
     public double getH() {
         return this.H;

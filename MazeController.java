@@ -66,17 +66,19 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
       System.out.println();
     }
 
-    new Thread(() -> { AStar a1= new AStar(this, m1, true); a1.solve(); }).start();
+    new Thread(() -> { AStar a1= new AStar(this, m1, true); System.out.println(a1.solve());}).start();
 
-    //System.out.println(a1.solve());
+
   }
 
   // called when the A* algorithm explores a new tile
   public void onExplore(Solver state) {
     // this is where you update the tiles and gui
-    AbstractCollection<Space> explored = state.getExplored();
-    for (Space space : explored)
-      gui.updateTile(space.getY(), space.getX(), 0);
+    Space[] explored = state.getExplored().toArray(new Space[0]);
+    for (int i = 0; i < explored.length - 1; i++)
+      gui.updateTile(explored[i].getY(), explored[i].getX(), 0);
+
+    gui.updateTile(explored[explored.length - 1].getY(), explored[explored.length - 1].getX(), 2);
   }
 
   @Override

@@ -4,10 +4,12 @@ import javafx.scene.Scene;
 import javafx.stage.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
+import java.lang.Integer;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -32,7 +34,7 @@ public class MazeGui extends Application
   * x_tiles = 600/40 = 15
   * y_tiles = 600/40 = 15
   */
-  private static final int TILE_SIZE = 30;
+  private static int TILE_SIZE = 30;
   private static int MAP_WIDTH = 630;
   private static int MAP_HEIGHT = 630;
   private static int X_TILES = MAP_WIDTH/TILE_SIZE;
@@ -43,13 +45,18 @@ public class MazeGui extends Application
   private static Space end;
   ImageView getStartedButton;
   ImageView beginFindingButton;
-
+  ImageView changeSizeButton;
+  ImageView resetButton;
+  TextField sizeTextField;
+  static GridPane mazePane;
+  static Pane map  = new Pane();
   private static final Image GRASS_PATH = new Image("assets/grass_path_top.png", TILE_SIZE, TILE_SIZE, true, true);
   private static final Image DIAMOND_ORE = new Image("assets/diamond_ore.png", TILE_SIZE, TILE_SIZE, true, true);
   private static final Image POWDER = new Image("assets/concretepowder_black.png", TILE_SIZE, TILE_SIZE, true, true);
   private static final Image BIRCH_PLANKS = new Image("assets/birch_planks.png", TILE_SIZE, TILE_SIZE, true, true);
   private static final Image EXPLORED = new Image("assets/concretepowder_red.png", TILE_SIZE, TILE_SIZE, true, true);
   private static final Image PATH = new Image("assets/concretepowder_blue.png", TILE_SIZE, TILE_SIZE, true, true);
+  private static final Image ZOMBIE = new Image("assets/zombie.gif", TILE_SIZE, TILE_SIZE, true, true);
 
   public MazeGui()
   {
@@ -93,60 +100,132 @@ public class MazeGui extends Application
       startScene = new Scene(mainPane, 1000, 700);
 
       /* Maze Grid */
-      GridPane mazePane = new GridPane();
-      Pane map = new Pane();
-      map.setPrefSize(MAP_WIDTH, MAP_HEIGHT);
-      for (int y = 0; y < Y_TILES; y++) {
-            for (int x = 0; x < X_TILES; x++) {
-                Tile tile; Space space;
-                  if (x == 0 || (y == 0 || y == Y_TILES-1) || x == X_TILES-1)
-                  {
-                    tile = new Tile(y,x, true);
-                    space = new Space(y,x,true);
-                  }
-                  else
-                  {
-                    tile = new Tile(y,x, false);
-                    space = new Space(y,x, false);
-                  }
-                grid[y][x] = tile;
-                spaceGrid[y][x] = space;
-                map.getChildren().add(tile);
-            }
-      }
+      mazePane = new GridPane();
       VBox mapInfo = new VBox(10);
       ImageView stepsImg = new ImageView(new Image("assets/steps.png", 200, 200, true, true));
-      ImageView timeImg  = new ImageView(new Image("assets/time.png", 140, 140, true, true));
+      ImageView sizeImg  = new ImageView(new Image("assets/size.png", 140, 140, true, true));
       ImageView exploredImg = new ImageView(new Image("assets/explored.png", 250, 250, true, true));
       beginFindingButton = new ImageView(new Image("assets/mcbutton.png",150,80, true, false));
       beginFindingButton.setId("start-maze");
       beginFindingButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
         new MazeController(this).beginSolving();
       });
-      VBox.setMargin(beginFindingButton, new Insets(205, 0, 0, 30));
+      VBox.setMargin(beginFindingButton, new Insets(3, 0, 0, 0));
       Text stepsLabel = new Text("100");
       stepsLabel.setFont(MINECRAFTIA);
       stepsLabel.setFill(Color.PINK);
       VBox.setMargin(stepsLabel, new Insets(-15, 0, 0, 30));
-      Text timeLabel = new Text("2.3 " + "s"); /* TODO: Extract Time */
-      timeLabel.setFont(MINECRAFTIA);
-      timeLabel.setFill(Color.LIGHTBLUE);
-      VBox.setMargin(timeLabel, new Insets(-15, 0, 0, 30));
       Text exploredLabel = new Text("103679");
       exploredLabel.setFont(MINECRAFTIA);
       exploredLabel.setFill(Color.LIGHTGREEN);
       VBox.setMargin(exploredLabel, new Insets(-15, 0, 0, 30));
-      mapInfo.getChildren().addAll(stepsImg, stepsLabel, timeImg, timeLabel, exploredImg, exploredLabel, beginFindingButton);
+      /* TODO: Update asser */
+      sizeTextField = new TextField();
+      VBox.setMargin(sizeTextField, new Insets(5, 0, 0, 10));
+
+      changeSizeButton = new ImageView(new Image("assets/button.png",150,80, true, false));
+      changeSizeButton.setId("change-size");
+      changeSizeButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+          String value = sizeTextField.getText();
+          int mazesize  = Integer.parseInt(value);
+          Pane mazemap = new Pane();
+          if (mazesize <= 8)
+            mazemap = setMazePane(45, 8);
+          else if (mazesize > 8 && mazesize < 16)
+            mazemap = setMazePane(40, mazesize);
+          else if (mazesize > 16 && mazesize < 24)
+            mazemap = setMazePane(35, mazesize);
+          else if (mazesize > 24 && mazesize < 32)
+            mazemap = setMazePane(20, mazesize);
+          else if (mazesize > 32 && mazesize < 40)
+            mazemap = setMazePane(15, mazesize);
+          else if (mazesize > 40 && mazesize < 56)
+            mazemap = setMazePane(10, mazesize);
+          else if (mazesize > 56 && mazesize < 64)
+            mazemap = setMazePane(5, mazesize);
+          else
+            mazemap = setMazePane(5, 64);
+          MazeGui.map = mazemap;
+          MazeGui.mazePane.add(mazemap,0,0);
+      });
+
+      resetButton = new ImageView(new Image("assets/button.png",150,80, true, false));
+      resetButton.setId("change-size");
+      resetButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+        resetMaze();
+      });
+
+      Pane initialMap = new Pane();
+      initialMap.setPrefSize(MAP_WIDTH, MAP_HEIGHT);
+      for (int y = 0; y < Y_TILES; y++) {
+           for (int x = 0; x < X_TILES; x++) {
+               Tile tile; Space space;
+                 if (x == 0 || (y == 0 || y == Y_TILES-1) || x == X_TILES-1)
+                 {
+                   tile = new Tile(y,x, true);
+                   space = new Space(y,x,true);
+                 }
+                 else
+                 {
+                   tile = new Tile(y,x, false);
+                   space = new Space(y,x, false);
+                 }
+               grid[y][x] = tile;
+               spaceGrid[y][x] = space;
+               initialMap.getChildren().add(tile);
+          }
+      }
+
+      MazeGui.map =  initialMap;
+
+      mapInfo.getChildren().addAll(stepsImg, stepsLabel, exploredImg,
+      exploredLabel, sizeImg, sizeTextField, changeSizeButton, resetButton, beginFindingButton);
+
       BackgroundImage mazebg = new BackgroundImage(new Image("assets/dirtbg.png"),
         BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
           BackgroundSize.DEFAULT);
-      mazePane.setMargin(map, new Insets(30, 0, 0, 35));
+      mazePane.setMargin(MazeGui.map, new Insets(30, 0, 0, 35));
       mazePane.setMargin(mapInfo, new Insets(60, 0, 0, 25));
-      mazePane.add(map, 0,0);
+      mazePane.add(MazeGui.map, 0,0);
       mazePane.add(mapInfo, 1,0);
       mazePane.setBackground(new Background(mazebg));
       mazeScene = new Scene(mazePane, 1000, 700);
   }
+
+  private Pane setMazePane(int TILE_SIZE, int DIMENSION)
+  {
+    this.TILE_SIZE = TILE_SIZE;
+    MAP_WIDTH = DIMENSION;
+    MAP_HEIGHT = DIMENSION;
+    X_TILES = DIMENSION;
+    Y_TILES = DIMENSION;
+    grid = new Tile[DIMENSION][DIMENSION];
+    spaceGrid = new Space[DIMENSION][DIMENSION];
+    System.out.println("Succesfully changed dimension!");
+
+    Pane map = new Pane();
+    map.setPrefSize(MAP_WIDTH, MAP_HEIGHT);
+    for (int y = 0; y < Y_TILES; y++) {
+          for (int x = 0; x < X_TILES; x++) {
+              Tile tile; Space space;
+                if (x == 0 || (y == 0 || y == Y_TILES-1) || x == X_TILES-1)
+                {
+                  tile = new Tile(y,x, true);
+                  space = new Space(y,x,true);
+                }
+                else
+                {
+                  tile = new Tile(y,x, false);
+                  space = new Space(y,x, false);
+                }
+              grid[y][x] = tile;
+              spaceGrid[y][x] = space;
+              map.getChildren().add(tile);
+          }
+    }
+    return map;
+  }
+
   private class Tile extends StackPane
   {
 
@@ -181,6 +260,11 @@ public class MazeGui extends Application
       public ImageView getBlock()
       {
           return this.block;
+      }
+
+      public void setWall(boolean isWall)
+      {
+        this.isWall = isWall;
       }
 
       public void updateTile()
@@ -229,6 +313,9 @@ public class MazeGui extends Application
           case 1:
               image = PATH;
               break;
+          case 2:
+              image = ZOMBIE;
+              break;
       }
       //TODO: find why this is x y not y x
       grid[y][x].getBlock().setImage(image);
@@ -236,9 +323,23 @@ public class MazeGui extends Application
 
   private void updateZombie()
   {
-    Image ZOMBIE = new Image("assets/zombie.gif", TILE_SIZE, TILE_SIZE, true, true);
     /* TODO: Update Start Tile with Steve*/
 
+  }
+
+  private void resetMaze()
+  {
+      for (int y = 0; y < Y_TILES; y++) {
+          for (int x = 0; x < X_TILES; x++) {
+              if (x != 0 && (y != 0 && y != Y_TILES-1) && x != X_TILES-1)
+              {
+                grid[y][x].getBlock().setImage(GRASS_PATH);
+                grid[y][x].setWall(false);
+                spaceGrid[y][x].setAttribute(" ");
+                spaceGrid[y][x].unsetWall();
+              }
+          }
+      }
   }
 
   public Space getStartSpace()
