@@ -23,7 +23,11 @@ import java.util.Optional;
 
 public class MazeGui extends Application
 {
-  Stage stage;
+
+  Stage stagse; //TODO: remove size editor in GUI, add 'Reset', change Zombie to Steve, change name from finding steve
+  // to finding diamonds, click drag to change walls or click a side button to change the type that click drag sets
+  // NOTE: TO CHANGE SIZE OF GRID, CHANGE THE SIZE HERE IN MAZE GUI
+
   Solver solver;
   private Scene startScene, mazeScene;
   public static final String MAIN_MENU = "MENU";
@@ -34,11 +38,12 @@ public class MazeGui extends Application
   * x_tiles = 600/40 = 15
   * y_tiles = 600/40 = 15
   */
-  private static int TILE_SIZE = 30;
-  private static int MAP_WIDTH = 630;
-  private static int MAP_HEIGHT = 630;
-  private static int X_TILES = MAP_WIDTH/TILE_SIZE;
-  private static int Y_TILES = MAP_HEIGHT/TILE_SIZE;
+  public static int size = 34;
+  private static int TILE_SIZE = 15;
+  private static int MAP_WIDTH = TILE_SIZE * (size + 2);
+  private static int MAP_HEIGHT = TILE_SIZE * (size + 2);
+  private static int X_TILES = size + 2;
+  private static int Y_TILES = size + 2;
   private Tile[][] grid = new Tile[X_TILES][Y_TILES];
   private static Space[][] spaceGrid = new Space[X_TILES][Y_TILES];
   private static Space start;
@@ -335,6 +340,7 @@ public class MazeGui extends Application
               {
                 grid[y][x].getBlock().setImage(GRASS_PATH);
                 grid[y][x].setWall(false);
+                grid[y][x].type = 0;
                 spaceGrid[y][x].setAttribute(" ");
                 spaceGrid[y][x].unsetWall();
               }

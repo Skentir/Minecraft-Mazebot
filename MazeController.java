@@ -48,12 +48,12 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
     start = gui.getStartSpace();
     end = gui.getEndSpace();
     System.out.printf ("%d %d, %d %d\n", start.getX(), start.getY(), end.getX(), end.getY());
-    Maze m1 = new Maze(21,start, end);
+    Maze m1 = new Maze(gui.size + 2, start, end);
 
     Space[][] grid = gui.getGrid();
 
-    for (int y = 0; y < 21; y++) {
-      for (int x = 0; x < 21; x++)
+    for (int y = 0; y < gui.size + 2; y++) {
+      for (int x = 0; x < gui.size + 2; x++)
       {
         if (grid[y][x].isWall()) {
           m1.setMazeWall(y, x);
@@ -74,11 +74,11 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
   // called when the A* algorithm explores a new tile
   public void onExplore(Solver state) {
     // this is where you update the tiles and gui
-    Space[] explored = state.getExplored().toArray(new Space[0]);
+    Point[] explored = state.getExplored().toArray(new Point[0]);
     for (int i = 0; i < explored.length - 1; i++)
-      gui.updateTile(explored[i].getY(), explored[i].getX(), 0);
+      gui.updateTile(explored[i].y, explored[i].x, 0);
 
-    gui.updateTile(explored[explored.length - 1].getY(), explored[explored.length - 1].getX(), 2);
+    gui.updateTile(explored[explored.length - 1].y, explored[explored.length - 1].x, 2);
   }
 
   @Override

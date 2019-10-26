@@ -1,7 +1,7 @@
 import java.lang.*;
 import java.util.*;
 
-public class Space{
+public class Space {
     private Maze maze;
     private int x; //column
     private int y; //row
@@ -64,6 +64,10 @@ public class Space{
     public void setY(int y) {
         this.y = y;
     }
+
+	public Point getPoint() {
+		return new Point(x, y);
+	}
 
     /*
         From the current Space, ge the next space to be traversed

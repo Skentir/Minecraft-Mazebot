@@ -37,28 +37,7 @@ public class AStar extends Solver {
                     return -1;
             }
         });
-        this.explored = new PriorityQueue<Space>(new Comparator<Space>() {
-            @Override
-            public int compare(Space s1, Space s2) {
-                double sf1 = s1.getF();
-                double sf2 = s2.getF();
-                double sh1 = s1.getH();
-                double sh2 = s2.getH();
-
-                if(sf1 > sf2)
-                    return 1;
-                else if(sf1 == sf2) {
-                    if(sh1 > sh2 )
-                        return 1;
-                    else if(sh1 == sh2)
-                        return 0;
-                    else
-                        return -1;
-                }
-                else
-                    return -1;
-            }
-        });
+        this.explored = new ArrayList<>();
 
     }
 
@@ -109,8 +88,8 @@ public class AStar extends Solver {
                 {
                     ArrayList<Node> nexts = this.getNextSpaces(); // Do not get spaces with walls
 //                    this.explored.add(currState);
-                    if(!this.explored.contains(currState)) {
-                        this.explored.add(currState);
+                    if(!this.explored.contains(currState.getPoint())) {
+                        this.explored.add(currState.getPoint());
                         currState.setAttribute("*");
                     }
 
@@ -121,7 +100,7 @@ public class AStar extends Solver {
                     for(int i= 0 ; i < x.size() ; i++) {
                         Node neighbor = x.get(i);
 
-                        if(!this.explored.contains(neighbor.getContent().getCurrentSpace())) { //Do not re-explore paths already explored
+                        if(!this.explored.contains(neighbor.getContent().getCurrentSpace().getPoint())) { //Do not re-explore paths already explored
                             if(!this.fringe.contains(neighbor)) {  // Do not add paths already in fringe (possibility of being explored)
                                 neighbor.setParent(current);
                                 ((PriorityQueue<Node>) this.fringe).offer(neighbor);
@@ -204,10 +183,11 @@ public class AStar extends Solver {
 
         for(int i = 0; i < nexts.size(); i++) {
             Space temp = nexts.get(i).getCurrentSpace();
-            if(!this.explored.contains(temp))
-                nexts.get(i).getCurrentSpace().calcManhattanH();
-            else
-                nexts.get(i).getCurrentSpace().calcEuclidH();
+            if(!this.explored.contains(temp.getPoint()))
+				if (manhattan)
+					nexts.get(i).getCurrentSpace().calcManhattanH();
+				else
+					nexts.get(i).getCurrentSpace().calcEuclidH();
 
             nexts.get(i).getCurrentSpace().incG(gCurrent);
             nexts.get(i).getCurrentSpace().calcF();
@@ -229,5 +209,5 @@ public class AStar extends Solver {
     public AbstractCollection<Node> getFringe() {
         return this.fringe;
     }
-    public AbstractCollection<Space> getExplored() { return this.explored; }
+    public AbstractCollection<Point> getExplored() { return this.explored; }
 }

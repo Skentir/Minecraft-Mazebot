@@ -5,7 +5,7 @@ public abstract class Solver { // Parent class for implementing algorithms
     protected Maze maze;
     protected String result;
     protected AbstractCollection<Node> fringe;
-    protected AbstractCollection<Space> explored;
+    protected AbstractCollection<Point> explored;
     protected int nodesCounter;
     protected int pathLength;
     protected boolean manhattan;
@@ -17,5 +17,5 @@ public abstract class Solver { // Parent class for implementing algorithms
     public abstract String getResult(); // This returns the result of an algorithm
 
     public abstract AbstractCollection<Node> getFringe();
-    public abstract AbstractCollection<Space> getExplored();
+    public abstract AbstractCollection<Point> getExplored();
 }
