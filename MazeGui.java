@@ -149,15 +149,15 @@ public class MazeGui extends Application
             mazemap = setMazePane(8);
           else if (mazesize > 8 && mazesize < 16)
             mazemap = setMazePane(mazesize);
-          else if (mazesize > 16 && mazesize < 24)
+          else if (mazesize >= 16 && mazesize < 24)
             mazemap = setMazePane(mazesize);
-          else if (mazesize > 24 && mazesize < 32)
+          else if (mazesize >= 24 && mazesize < 32)
             mazemap = setMazePane(mazesize);
-          else if (mazesize > 32 && mazesize < 40)
+          else if (mazesize >= 32 && mazesize < 40)
             mazemap = setMazePane(mazesize);
-          else if (mazesize > 40 && mazesize < 56)
+          else if (mazesize >= 40 && mazesize < 56)
             mazemap = setMazePane(mazesize);
-          else if (mazesize > 56 && mazesize < 64)
+          else if (mazesize >= 56 && mazesize < 64)
             mazemap = setMazePane(mazesize);
           else
             mazemap = setMazePane(64);
