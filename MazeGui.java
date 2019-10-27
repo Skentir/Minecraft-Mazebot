@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.stage.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
+import java.io.File;
 import java.lang.Integer;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Region;
@@ -20,6 +21,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.application.Application;
 import java.util.Optional;
+import javafx.scene.media.AudioClip;
 
 public class MazeGui extends Application
 {
@@ -64,7 +66,11 @@ public class MazeGui extends Application
   private static final Image EXPLORED = new Image("assets/concretepowder_red.png", TILE_SIZE, TILE_SIZE, true, true);
   private static final Image PATH = new Image("assets/concretepowder_blue.png", TILE_SIZE, TILE_SIZE, true, true);
   private static final Image ZOMBIE = new Image("assets/zombie.gif", TILE_SIZE, TILE_SIZE, true, true);
-
+  private static final AudioClip buttonSound = new AudioClip(new File("assets/sounds/btn_click.wav").toURI().toString());
+  public static final AudioClip walkSound = new AudioClip(new File("assets/sounds/walk.mp3").toURI().toString());
+  public static final AudioClip goalSound = new AudioClip(new File ("assets/sounds/goal.mp3").toURI().toString());
+  public static final AudioClip goingToGoalSound = new AudioClip(new File ("assets/sounds/orb.mp3").toURI().toString());
+  private static final AudioClip blockSound = new AudioClip(new File ("assets/sounds/block.mp3").toURI().toString());
   public MazeGui()
   {
   }
@@ -90,6 +96,7 @@ public class MazeGui extends Application
       getStartedButton = new ImageView(new Image("assets/mcbutton.png",150,80, true, false));
       getStartedButton.setId("get-started"); /* CHECK Controller to see what it does! :) */
       getStartedButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+        buttonSound.play();
         this.setScene(MAZE);
       });
       BorderPane mainPane = new BorderPane();
@@ -115,6 +122,7 @@ public class MazeGui extends Application
       beginFindingButton = new ImageView(new Image("assets/mcbutton.png",150,80, true, false));
       beginFindingButton.setId("start-maze");
       beginFindingButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+        buttonSound.play();
         new MazeController(this).beginSolving();
       });
       VBox.setMargin(beginFindingButton, new Insets(3, 0, 0, 0));
@@ -133,6 +141,7 @@ public class MazeGui extends Application
       changeSizeButton = new ImageView(new Image("assets/sizebutton.png",150,80, true, false));
       changeSizeButton.setId("change-size");
       changeSizeButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+          buttonSound.play();
           String value = sizeTextField.getText();
           int mazesize  = Integer.parseInt(value);
           Pane mazemap = new Pane();
@@ -160,6 +169,7 @@ public class MazeGui extends Application
       resetButton = new ImageView(new Image("assets/reset.png",150,80, true, false));
       resetButton.setId("change-size");
       resetButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+        buttonSound.play();
         resetMaze();
       });
 
@@ -264,7 +274,6 @@ public class MazeGui extends Application
         setScaleX(scale);
         setScaleY(scale);
         setOnMouseClicked(e -> updateTile());
-        setOnMouseDragged(e -> makeWall());
       }
 
       public ImageView getBlock()
@@ -285,23 +294,27 @@ public class MazeGui extends Application
         switch(this.type)
         {
           case 0:
+            blockSound.play();
             block.setImage(GRASS_PATH);
             this.isWall = false;
             spaceGrid[y][x].setAttribute(" ");
             break;
           case 1:
+            blockSound.play();
             block.setImage(BIRCH_PLANKS);
             this.isWall = true;
             spaceGrid[y][x].setWall();
             spaceGrid[y][x].setAttribute("B");
             break;
           case 2:
+            blockSound.play();
             block.setImage(POWDER);
             start = MazeGui.spaceGrid[y][x];
             spaceGrid[y][x].setAttribute("S");
             this.isWall = false;
             break;
           case 3:
+            blockSound.play();
             block.setImage(DIAMOND_ORE);
             end = MazeGui.spaceGrid[y][x];
             spaceGrid[y][x].setAttribute("E");
@@ -309,15 +322,6 @@ public class MazeGui extends Application
             /* TODO: Create function to save the coordinate of the goal */
             break;
       }
-    }
-
-    public void makeWall()
-    {
-      block.setImage(BIRCH_PLANKS);
-      this.type = 1;
-      this.isWall = true;
-      spaceGrid[y][x].setWall();
-      spaceGrid[y][x].setAttribute("B");
     }
   }
 
