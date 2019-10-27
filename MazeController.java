@@ -4,6 +4,7 @@ import javafx.event.EventTarget;
 import java.util.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ButtonType;
+import javafx.application.Platform;
 
 public class MazeController implements EventHandler<ActionEvent>, Explorer
 {
@@ -78,10 +79,13 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
     for (int i = 0; i < explored.length - 1; i++)
     {
       gui.updateTile(explored[i].y, explored[i].x, 0);
-      gui.exploredLabel.setText(Integer.toString(i));
+      {
+        final int i1 = i;
+        Platform.runLater(() -> gui.exploredLabel.setText(Integer.toString(i1)));
+      }
     }
     gui.updateTile(explored[explored.length - 1].y, explored[explored.length - 1].x, 2);
-    gui.exploredLabel.setText(Integer.toString(explored.length));
+    Platform.runLater(() -> gui.exploredLabel.setText(Integer.toString(explored.length)));
   }
 
   @Override
@@ -99,11 +103,18 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
       } catch (Exception ex) {
 
       }
-      gui.stepsLabel.setText(Integer.toString(stepscount));
+
+      {
+        final int stepscount1 = stepscount;
+        Platform.runLater(() -> gui.stepsLabel.setText(Integer.toString(stepscount1)));
+      }
       gui.updateTile(space.getY(), space.getX(), 1);
       stepscount++;
       current = current.getParent();
     }
-    gui.stepsLabel.setText(Integer.toString(stepscount));
+    {
+      final int stepscount1 = stepscount;
+      Platform.runLater(() -> gui.stepsLabel.setText(Integer.toString(stepscount1)));
+    }
   }
 }

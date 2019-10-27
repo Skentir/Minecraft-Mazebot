@@ -126,7 +126,7 @@ public class MazeGui extends Application
       exploredLabel.setFont(MINECRAFTIA);
       exploredLabel.setFill(Color.LIGHTGREEN);
       VBox.setMargin(exploredLabel, new Insets(-15, 0, 0, 30));
-  
+
       sizeTextField = new TextField();
       VBox.setMargin(sizeTextField, new Insets(5, 0, 0, 10));
 
@@ -137,21 +137,22 @@ public class MazeGui extends Application
           int mazesize  = Integer.parseInt(value);
           Pane mazemap = new Pane();
           if (mazesize <= 8)
-            mazemap = setMazePane(45, 8);
+            mazemap = setMazePane(8);
           else if (mazesize > 8 && mazesize < 16)
-            mazemap = setMazePane(40, mazesize);
+            mazemap = setMazePane(mazesize);
           else if (mazesize > 16 && mazesize < 24)
-            mazemap = setMazePane(35, mazesize);
+            mazemap = setMazePane(mazesize);
           else if (mazesize > 24 && mazesize < 32)
-            mazemap = setMazePane(20, mazesize);
+            mazemap = setMazePane(mazesize);
           else if (mazesize > 32 && mazesize < 40)
-            mazemap = setMazePane(15, mazesize);
+            mazemap = setMazePane(mazesize);
           else if (mazesize > 40 && mazesize < 56)
-            mazemap = setMazePane(10, mazesize);
+            mazemap = setMazePane(mazesize);
           else if (mazesize > 56 && mazesize < 64)
-            mazemap = setMazePane(5, mazesize);
+            mazemap = setMazePane(mazesize);
           else
-            mazemap = setMazePane(5, 64);
+            mazemap = setMazePane(64);
+          MazeGui.mazePane.getChildren().remove(MazeGui.map);
           MazeGui.map = mazemap;
           MazeGui.mazePane.add(mazemap,0,0);
       });
@@ -169,12 +170,12 @@ public class MazeGui extends Application
                Tile tile; Space space;
                  if (x == 0 || (y == 0 || y == Y_TILES-1) || x == X_TILES-1)
                  {
-                   tile = new Tile(y,x, true);
+                   tile = new Tile(y,x, true, 1.0);
                    space = new Space(y,x,true);
                  }
                  else
                  {
-                   tile = new Tile(y,x, false);
+                   tile = new Tile(y,x, false, 1.0);
                    space = new Space(y,x, false);
                  }
                grid[y][x] = tile;
@@ -199,15 +200,13 @@ public class MazeGui extends Application
       mazeScene = new Scene(mazePane, 1000, 700);
   }
 
-  private Pane setMazePane(int TILE_SIZE, int DIMENSION)
+  private Pane setMazePane(int DIMENSION)
   {
-    this.TILE_SIZE = TILE_SIZE;
-    MAP_WIDTH = DIMENSION;
-    MAP_HEIGHT = DIMENSION;
-    X_TILES = DIMENSION;
-    Y_TILES = DIMENSION;
-    grid = new Tile[DIMENSION][DIMENSION];
-    spaceGrid = new Space[DIMENSION][DIMENSION];
+    size = DIMENSION;
+    X_TILES = size + 2;
+    Y_TILES = size + 2;
+    grid = new Tile[Y_TILES][X_TILES];
+    spaceGrid = new Space[Y_TILES][X_TILES];
     System.out.println("Succesfully changed dimension!");
 
     Pane map = new Pane();
@@ -217,12 +216,12 @@ public class MazeGui extends Application
               Tile tile; Space space;
                 if (x == 0 || (y == 0 || y == Y_TILES-1) || x == X_TILES-1)
                 {
-                  tile = new Tile(y,x, true);
+                  tile = new Tile(y,x, true, 22.0 / X_TILES);
                   space = new Space(y,x,true);
                 }
                 else
                 {
-                  tile = new Tile(y,x, false);
+                  tile = new Tile(y,x, false, 22.0 / X_TILES);
                   space = new Space(y,x, false);
                 }
               grid[y][x] = tile;
@@ -238,7 +237,7 @@ public class MazeGui extends Application
 
       private int x,y;
       private boolean isWall;
-      private Rectangle border = new Rectangle(TILE_SIZE-2, TILE_SIZE-2);
+      private Rectangle border;
       private ImageView block;
       private int type;
       /*
@@ -247,11 +246,12 @@ public class MazeGui extends Application
         2 - start
         3 - goal
       */
-      public Tile(int y, int x, boolean isWall)
+      public Tile(int y, int x, boolean isWall, double scale)
       {
         this.x = x;
         this.y = y;
         this.isWall = isWall;
+        this.border = new Rectangle((TILE_SIZE-2) * scale, (TILE_SIZE-2) * scale);
         this.type = 0;
         if (isWall)
           block = new ImageView(BIRCH_PLANKS);
@@ -259,8 +259,10 @@ public class MazeGui extends Application
           block = new ImageView(GRASS_PATH);
         border.setFill(Color.TRANSPARENT);
         getChildren().addAll(block, border);
-        setTranslateX(x * TILE_SIZE);
-        setTranslateY(y * TILE_SIZE);
+        setTranslateX(x * TILE_SIZE * scale);
+        setTranslateY(y * TILE_SIZE * scale);
+        setScaleX(scale);
+        setScaleY(scale);
         setOnMouseClicked(e -> updateTile());
         setOnMouseDragged(e -> makeWall());
       }

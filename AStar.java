@@ -37,7 +37,7 @@ public class AStar extends Solver {
                     return -1;
             }
         });
-        this.explored = new ArrayList<>();
+        this.explored = new HashSet<>();
 
     }
 
