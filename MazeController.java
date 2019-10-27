@@ -76,14 +76,18 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
     // this is where you update the tiles and gui
     Point[] explored = state.getExplored().toArray(new Point[0]);
     for (int i = 0; i < explored.length - 1; i++)
+    {
       gui.updateTile(explored[i].y, explored[i].x, 0);
-
+      gui.exploredLabel.setText(Integer.toString(i));
+    }
     gui.updateTile(explored[explored.length - 1].y, explored[explored.length - 1].x, 2);
+    gui.exploredLabel.setText(Integer.toString(explored.length));
   }
 
   @Override
   public void onPathFound(Node solution) {
     // display the path
+    int stepscount = 0;
     Node current = solution.getParent();
 
     while (current.hasParent()) {
@@ -95,9 +99,11 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
       } catch (Exception ex) {
 
       }
+      gui.stepsLabel.setText(Integer.toString(stepscount));
       gui.updateTile(space.getY(), space.getX(), 1);
-
+      stepscount++;
       current = current.getParent();
     }
+    gui.stepsLabel.setText(Integer.toString(stepscount));
   }
 }

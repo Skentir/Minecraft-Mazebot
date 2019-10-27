@@ -24,7 +24,7 @@ import java.util.Optional;
 public class MazeGui extends Application
 {
 
-  Stage stagse; //TODO: remove size editor in GUI, add 'Reset', change Zombie to Steve, change name from finding steve
+  Stage stage; //TODO: remove size editor in GUI, add 'Reset', change Zombie to Steve, change name from finding steve
   // to finding diamonds, click drag to change walls or click a side button to change the type that click drag sets
   // NOTE: TO CHANGE SIZE OF GRID, CHANGE THE SIZE HERE IN MAZE GUI
 
@@ -38,8 +38,8 @@ public class MazeGui extends Application
   * x_tiles = 600/40 = 15
   * y_tiles = 600/40 = 15
   */
-  public static int size = 34;
-  private static int TILE_SIZE = 15;
+  public static int size = 20;
+  private static int TILE_SIZE = 30;
   private static int MAP_WIDTH = TILE_SIZE * (size + 2);
   private static int MAP_HEIGHT = TILE_SIZE * (size + 2);
   private static int X_TILES = size + 2;
@@ -53,6 +53,8 @@ public class MazeGui extends Application
   ImageView changeSizeButton;
   ImageView resetButton;
   TextField sizeTextField;
+  Text stepsLabel;
+  Text exploredLabel;
   static GridPane mazePane;
   static Pane map  = new Pane();
   private static final Image GRASS_PATH = new Image("assets/grass_path_top.png", TILE_SIZE, TILE_SIZE, true, true);
@@ -116,19 +118,19 @@ public class MazeGui extends Application
         new MazeController(this).beginSolving();
       });
       VBox.setMargin(beginFindingButton, new Insets(3, 0, 0, 0));
-      Text stepsLabel = new Text("100");
+      stepsLabel = new Text("0");
       stepsLabel.setFont(MINECRAFTIA);
       stepsLabel.setFill(Color.PINK);
       VBox.setMargin(stepsLabel, new Insets(-15, 0, 0, 30));
-      Text exploredLabel = new Text("103679");
+      exploredLabel = new Text("0");
       exploredLabel.setFont(MINECRAFTIA);
       exploredLabel.setFill(Color.LIGHTGREEN);
       VBox.setMargin(exploredLabel, new Insets(-15, 0, 0, 30));
-      /* TODO: Update asser */
+  
       sizeTextField = new TextField();
       VBox.setMargin(sizeTextField, new Insets(5, 0, 0, 10));
 
-      changeSizeButton = new ImageView(new Image("assets/button.png",150,80, true, false));
+      changeSizeButton = new ImageView(new Image("assets/sizebutton.png",150,80, true, false));
       changeSizeButton.setId("change-size");
       changeSizeButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
           String value = sizeTextField.getText();
@@ -154,7 +156,7 @@ public class MazeGui extends Application
           MazeGui.mazePane.add(mazemap,0,0);
       });
 
-      resetButton = new ImageView(new Image("assets/button.png",150,80, true, false));
+      resetButton = new ImageView(new Image("assets/reset.png",150,80, true, false));
       resetButton.setId("change-size");
       resetButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
         resetMaze();
@@ -260,6 +262,7 @@ public class MazeGui extends Application
         setTranslateX(x * TILE_SIZE);
         setTranslateY(y * TILE_SIZE);
         setOnMouseClicked(e -> updateTile());
+        setOnMouseDragged(e -> makeWall());
       }
 
       public ImageView getBlock()
@@ -305,6 +308,15 @@ public class MazeGui extends Application
             break;
       }
     }
+
+    public void makeWall()
+    {
+      block.setImage(BIRCH_PLANKS);
+      this.type = 1;
+      this.isWall = true;
+      spaceGrid[y][x].setWall();
+      spaceGrid[y][x].setAttribute("B");
+    }
   }
 
   public void updateTile(int y, int x, int index)
@@ -346,6 +358,8 @@ public class MazeGui extends Application
               }
           }
       }
+      stepsLabel.setText("0");
+      exploredLabel.setText("0");
   }
 
   public Space getStartSpace()
