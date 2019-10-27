@@ -101,11 +101,11 @@ public class AStar extends Solver {
                         Node neighbor = x.get(i);
 
                         if(!this.explored.contains(neighbor.getContent().getCurrentSpace().getPoint())) { //Do not re-explore paths already explored
-                            if(!this.fringe.contains(neighbor)) {  // Do not add paths already in fringe (possibility of being explored)
+                      //      if(!this.fringe.contains(neighbor)) {  // Do not add paths already in fringe (possibility of being explored)
                                 neighbor.setParent(current);
                                 ((PriorityQueue<Node>) this.fringe).offer(neighbor);
                                 this.nodesCounter++;
-                            }
+                    //        }
                         }
                     }
 

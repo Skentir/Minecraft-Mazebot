@@ -15,6 +15,7 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
   private char[][] map;
   private Space start;
   private Space end;
+  Point[] explored;
 
   public MazeController(MazeGui gui)
   {
@@ -75,7 +76,7 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
   // called when the A* algorithm explores a new tile
   public void onExplore(Solver state) {
     // this is where you update the tiles and gui
-    Point[] explored = state.getExplored().toArray(new Point[0]);
+    explored = state.getExplored().toArray(new Point[0]);
     for (int i = 0; i < explored.length - 1; i++)
     {
       gui.updateTile(explored[i].y, explored[i].x, 0);
@@ -91,14 +92,24 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
 
   @Override
   public void onPathFound(Node solution) {
+    //remove the zombie from the last path point
+    gui.updateTile(explored[explored.length - 1].y, explored[explored.length - 1].x, 2);
     // display the path
     int stepscount = 0;
     Node current = solution.getParent();
+    ArrayList<Space> reverse = new ArrayList<Space>();
 
     while (current.hasParent()) {
       Maze content = current.getContent();
       Space space = content.getCurrentSpace();
-
+      reverse.add(space);
+      current = current.getParent();
+    }
+    /* print the optimal path in reverse */
+    Space s;
+    for (int i = reverse.size()-1; i >= 0; i--)
+    {
+      s = reverse.get(i);
       try {
         Thread.sleep(20);
       } catch (Exception ex) {
@@ -109,11 +120,11 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
         final int stepscount1 = stepscount;
         Platform.runLater(() -> gui.stepsLabel.setText(Integer.toString(stepscount1)));
       }
-      gui.updateTile(space.getY(), space.getX(), 1);
+      gui.updateTile(s.getY(), s.getX(), 1);
       stepscount++;
-      current = current.getParent();
       gui.goingToGoalSound.play();
     }
+
     {
       final int stepscount1 = stepscount;
       Platform.runLater(() -> gui.stepsLabel.setText(Integer.toString(stepscount1)));
