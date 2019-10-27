@@ -93,7 +93,7 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
   @Override
   public void onPathFound(Node solution) {
     //remove the zombie from the last path point
-    gui.updateTile(explored[explored.length - 1].y, explored[explored.length - 1].x, 2);
+    gui.updateTile(explored[explored.length - 1].y, explored[explored.length - 1].x, 0);
     // display the path
     int stepscount = 0;
     Node current = solution.getParent();

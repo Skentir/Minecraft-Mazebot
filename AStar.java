@@ -8,6 +8,7 @@ Further considerations
 * */
 
 public class AStar extends Solver {
+    private HashSet<Point> fringePoints = new HashSet<>();
 
     public AStar(Explorer explorer, Maze maze, Boolean manhattan) {
         this.explorer = explorer;
@@ -43,6 +44,7 @@ public class AStar extends Solver {
 
     public String solve() {
         this.maze.initMaze(); //Re-init maze
+        fringePoints.clear();
 
         Boolean endfound = false; // Initially false until end state is reached
         this.nodesCounter = 0;
@@ -100,12 +102,14 @@ public class AStar extends Solver {
                     for(int i= 0 ; i < x.size() ; i++) {
                         Node neighbor = x.get(i);
 
-                        if(!this.explored.contains(neighbor.getContent().getCurrentSpace().getPoint())) { //Do not re-explore paths already explored
-                      //      if(!this.fringe.contains(neighbor)) {  // Do not add paths already in fringe (possibility of being explored)
+                        Point pt = neighbor.getContent().getCurrentSpace().getPoint();
+                        if(!this.explored.contains(pt)) { //Do not re-explore paths already explored
+                            if(!this.fringe.contains(neighbor) && !fringePoints.contains(pt)) {  // Do not add paths already in fringe (possibility of being explored)
                                 neighbor.setParent(current);
                                 ((PriorityQueue<Node>) this.fringe).offer(neighbor);
+                                fringePoints.add(pt);
                                 this.nodesCounter++;
-                    //        }
+                            }
                         }
                     }
 
@@ -175,28 +179,28 @@ public class AStar extends Solver {
     }
 
     public ArrayList<Node> getNextSpaces() {
-        ArrayList<Node> res = new ArrayList<Node>();
+      ArrayList<Node> res = new ArrayList<Node>();
 
-        ArrayList<Maze> nexts = this.maze.getCurrentSpace().getNexts();
+      ArrayList<Maze> nexts = this.maze.getCurrentSpace().getNexts();
 
-        int gCurrent = this.maze.getCurrentSpace().getG();
+      int gCurrent = this.maze.getCurrentSpace().getG();
 
-        for(int i = 0; i < nexts.size(); i++) {
-            Space temp = nexts.get(i).getCurrentSpace();
-            if(!this.explored.contains(temp.getPoint()))
-				if (manhattan)
-					nexts.get(i).getCurrentSpace().calcManhattanH();
-				else
-					nexts.get(i).getCurrentSpace().calcEuclidH();
+      for(int i = 0; i < nexts.size(); i++) {
+        Space temp = nexts.get(i).getCurrentSpace();
+        if(!this.explored.contains(temp.getPoint())) {
+  				if (manhattan)
+  					nexts.get(i).getCurrentSpace().calcManhattanH();
+  				else
+  					nexts.get(i).getCurrentSpace().calcEuclidH();
 
-            nexts.get(i).getCurrentSpace().incG(gCurrent);
-            nexts.get(i).getCurrentSpace().calcF();
+          nexts.get(i).getCurrentSpace().incG(gCurrent);
+          nexts.get(i).getCurrentSpace().calcF();
 
-            Node tempNode = new Node(nexts.get(i));
-            res.add(tempNode);
-
+          Node tempNode = new Node(nexts.get(i));
+          res.add(tempNode);
         }
-        return res;
+      }
+      return res;
     }
 
     public String getResult() {
