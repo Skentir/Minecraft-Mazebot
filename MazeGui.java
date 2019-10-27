@@ -71,6 +71,7 @@ public class MazeGui extends Application
   public static final AudioClip goalSound = new AudioClip(new File ("assets/sounds/goal.mp3").toURI().toString());
   public static final AudioClip goingToGoalSound = new AudioClip(new File ("assets/sounds/orb.mp3").toURI().toString());
   private static final AudioClip blockSound = new AudioClip(new File ("assets/sounds/block.mp3").toURI().toString());
+  private static final AudioClip c418 = new AudioClip(new File ("assets/sounds/c418.mp3").toURI().toString());
   public MazeGui()
   {
   }
@@ -97,6 +98,7 @@ public class MazeGui extends Application
       getStartedButton.setId("get-started"); /* CHECK Controller to see what it does! :) */
       getStartedButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
         buttonSound.play();
+        c418.play();
         this.setScene(MAZE);
       });
       BorderPane mainPane = new BorderPane();
