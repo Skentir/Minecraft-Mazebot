@@ -83,9 +83,9 @@ public class MazeController implements EventHandler<ActionEvent>, Explorer
       {
         final int i1 = i;
         Platform.runLater(() -> gui.exploredLabel.setText(Integer.toString(i1)));
-        gui.walkSound.play();
       }
     }
+    gui.walkSound.play();
     gui.updateTile(explored[explored.length - 1].y, explored[explored.length - 1].x, 2);
     Platform.runLater(() -> gui.exploredLabel.setText(Integer.toString(explored.length)));
   }

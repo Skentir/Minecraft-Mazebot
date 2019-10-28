@@ -129,18 +129,7 @@ public class AStar extends Solver {
 
         long time = endTime - startTime;
 
-        if(this.manhattan)
-            this.result = "    ___                    __  ___            __          __  __            \r\n" +
-                    "   /   | __/|_            /  |/  /___ _____  / /_  ____ _/ /_/ /_____ _____ \r\n" +
-                    "  / /| ||    /  ______   / /|_/ / __ `/ __ \\/ __ \\/ __ `/ __/ __/ __ `/ __ \\\r\n" +
-                    " / ___ /_ __|  /_____/  / /  / / /_/ / / / / / / / /_/ / /_/ /_/ /_/ / / / /\r\n" +
-                    "/_/  |_||/             /_/  /_/\\__,_/_/ /_/_/ /_/\\__,_/\\__/\\__/\\__,_/_/ /_/ \n";
-        else
-            this.result = "    ___                    ______           ___     __\r\n" +
-                    "   /   | __/|_            / ____/_  _______/ (_)___/ /\r\n" +
-                    "  / /| ||    /  ______   / __/ / / / / ___/ / / __  / \r\n" +
-                    " / ___ /_ __|  /_____/  / /___/ /_/ / /__/ / / /_/ /  \r\n" +
-                    "/_/  |_||/             /_____/\\__,_/\\___/_/_/\\__,_/   \n";
+        this.result = "AStar";
 
         if(endfound)
         {
@@ -149,7 +138,6 @@ public class AStar extends Solver {
             explorer.onPathFound(revertedTree);
 
             revertedTree = revertedTree.getParent();
-            this.result += "Path: " + this.maze.getEnd().toString() + "(End) <- ";
             this.pathLength++;
 
             while(revertedTree.hasParent()) {
@@ -167,8 +155,7 @@ public class AStar extends Solver {
 
             pathLength--; // Since first node has cost 0
 
-            this.result += this.maze.getStart().toString() + "(Start) \n" + "Path length: " + this.pathLength + "\nNumber of nodes created: " + this.nodesCounter + "\nExecution time: " + time/1000d + " seconds\n";
-            this.result += this.maze.printMaze();
+            this.result += "Path found."
         }
         else
         {

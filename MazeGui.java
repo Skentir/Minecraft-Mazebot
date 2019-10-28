@@ -125,6 +125,8 @@ public class MazeGui extends Application
       beginFindingButton.setId("start-maze");
       beginFindingButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
         buttonSound.play();
+        if (!c418.isPlaying())
+          c418.play();
         new MazeController(this).beginSolving();
       });
       VBox.setMargin(beginFindingButton, new Insets(3, 0, 0, 0));
@@ -173,6 +175,8 @@ public class MazeGui extends Application
       resetButton.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
         buttonSound.play();
         resetMaze();
+        if (!c418.isPlaying())
+          c418.play();
       });
 
       Pane initialMap = new Pane();
